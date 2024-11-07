@@ -1,0 +1,29 @@
+server:
+  port: 8040
+
+spring:
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:productB
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  jpa:
+   hibernate:
+      ddl-auto: create-drop
+   database-platform: org.hibernate.dialect.H2Dialect
+
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        concurrency: 1
+        max-concurrency: 10
+    template:
+      default-receive-queue: pedido-event-processed
