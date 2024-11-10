@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.rockha.adapter.inbound.rest.common.CommonCrudRestController;
+import br.com.rockha.adapter.inbound.rest.controller.doc.OrderRestControllerDoc;
 import br.com.rockha.adapter.inbound.rest.mapper.OrderRestMapper;
 import br.com.rockha.adapter.inbound.rest.request.json.OrderCreateRequestJson;
 import br.com.rockha.adapter.inbound.rest.request.json.OrderUpdateRequestJson;
@@ -32,7 +33,7 @@ public class OrderRestController extends CommonCrudRestController<
         OrderDeleteCommand,     // Tipo do comando de exclusão
         OrderFindByIdCommand,   // Tipo do comando de busca por ID
         OrderSearchCommand      // Tipo do comando de busca
-        > //implements AgendamentoRestControllerDoc
+        >  implements OrderRestControllerDoc
 				{
 
     public OrderRestController(OrderPortInbound portInbound, OrderRestMapper mapper) {

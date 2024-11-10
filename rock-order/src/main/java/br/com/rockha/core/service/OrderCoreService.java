@@ -17,8 +17,10 @@ import br.com.rockha.core.port.outbound.order.OrderFindByIdPortOutbound;
 import br.com.rockha.core.port.outbound.order.OrderSearchPortOutbound;
 import br.com.rockha.core.port.outbound.order.OrderUpdatePortOutbound;
 import br.com.rockha.core.port.outbound.order.ProcessedOrderUploadPortOutbound;
+import lombok.Setter;
 
 @Service
+@Setter
 public class OrderCoreService extends CommonCrudCoreService<
 		OrderDTO,
         OrderCreateCommand,

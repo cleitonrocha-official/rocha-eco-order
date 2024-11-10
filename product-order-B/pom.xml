@@ -10,7 +10,7 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>br.com.rockha</groupId>
-	<artifactId>rock-order</artifactId>
+	<artifactId>rock-order-produtoB</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>rock-order</name>
 	<description>Demo project for Spring Boot</description>

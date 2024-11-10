@@ -12,7 +12,7 @@
 	<groupId>br.com.rockha</groupId>
 	<artifactId>rock-order</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>rock-order</name>
+	<name>rock-order-produtoA</name>
 	<description>Demo project for Spring Boot</description>
 	<url />
 	<licenses>

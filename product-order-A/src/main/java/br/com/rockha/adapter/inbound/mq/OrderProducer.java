@@ -27,7 +27,7 @@ public class OrderProducer {
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private int processos = 0;
-    private boolean on = false;
+    private boolean on = true;
 
     public void sendOrders(int numberOfOrders) {
         for (int i = 0; i < numberOfOrders; i++) {
