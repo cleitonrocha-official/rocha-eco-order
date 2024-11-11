@@ -1,5 +1,7 @@
 package br.com.rockha.core.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,7 @@ import br.com.rockha.core.command.order.OrderSearchCommand;
 import br.com.rockha.core.command.order.OrderUpdateCommand;
 import br.com.rockha.core.common.CommonCrudCoreService;
 import br.com.rockha.core.dto.OrderDTO;
+import br.com.rockha.core.error.invalidarg.OrderCreateException;
 import br.com.rockha.core.port.inbound.OrderPortInbound;
 import br.com.rockha.core.port.outbound.order.OrderCreatePortOutbound;
 import br.com.rockha.core.port.outbound.order.OrderDeletePortOutbound;
@@ -18,9 +21,11 @@ import br.com.rockha.core.port.outbound.order.OrderSearchPortOutbound;
 import br.com.rockha.core.port.outbound.order.OrderUpdatePortOutbound;
 import br.com.rockha.core.port.outbound.order.ProcessedOrderUploadPortOutbound;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Setter
+@Slf4j
 public class OrderCoreService extends CommonCrudCoreService<
 		OrderDTO,
         OrderCreateCommand,
@@ -56,10 +61,23 @@ public class OrderCoreService extends CommonCrudCoreService<
     
 	@Override
 	public OrderDTO create(OrderCreateCommand input) {
-		var orderCalculed = orderCalculatorService.process(input);
-		var orderDTO = super.create(orderCalculed);
-		var orderDTOFull = findByIdPortOutbound.process(OrderFindByIdCommand.builder().uuid(orderDTO.getUuid()).build());
-		processedOrderUploadPortOutbound.process(orderDTOFull);
+		 return Optional.of(input)
+			        .map(orderCalculatorService::process)
+			        .map(super::create) 
+			        .map(this::buildFindByCommand) 
+			        .map(findByIdPortOutbound::process)
+			        .map(this::uploadOrder)
+			        .orElseThrow(OrderCreateException::new); 
+	}
+
+
+	private OrderDTO uploadOrder(OrderDTO orderDTOFull) {
+		processedOrderUploadPortOutbound.process(orderDTOFull); 
 		return orderDTOFull;
+	}
+
+
+	private OrderFindByIdCommand buildFindByCommand(OrderDTO orderDTO) {
+		return OrderFindByIdCommand.builder().uuid(orderDTO.getUuid()).build();
 	}
 }

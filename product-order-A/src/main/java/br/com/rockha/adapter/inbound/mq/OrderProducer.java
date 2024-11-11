@@ -16,6 +16,7 @@ import br.com.rockha.adapter.inbound.mq.config.RabbitMQConfig;
 import br.com.rockha.adapter.inbound.mq.payload.OrderCreatePayload;
 import br.com.rockha.adapter.inbound.mq.payload.OrderItemPayload;
 import br.com.rockha.adapter.inbound.mq.payload.ProductPayload;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,23 +28,40 @@ public class OrderProducer {
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private int processos = 0;
+    private final int qtdAprocessar =20;
+    private final int numeroDeMensagensEnviadasPorProcessos = 5000;
     private boolean on = true;
 
     public void sendOrders(int numberOfOrders) {
+        List<String> messages = new ArrayList<>(); 
+
         for (int i = 0; i < numberOfOrders; i++) {
             try {
                 OrderCreatePayload order = createOrder(i);
                 String message = objectMapper.writeValueAsString(order);
-
-              
-                rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, message);
-                log.info("Pedido enviado: {}", message);
+                messages.add(message); 
             } catch (JsonProcessingException e) {
                 log.error("Erro ao converter o pedido para JSON", e);
             }
         }
-        
+
+        // Envia o lote de mensagens de uma vez
+        try {
+            rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, messages);
+            log.info("Lote de {} pedidos enviado", messages.size());
+        } catch (Exception e) {
+            log.error("Erro ao enviar o lote de pedidos", e);
+        }
+
         processos++;
+    }
+
+    
+    @PostConstruct
+    public void init() {
+    	log.info("-----------------------");
+    	log.info("Programado para {} mensagens" , qtdAprocessar * numeroDeMensagensEnviadasPorProcessos);
+    	log.info("-----------------------");
     }
 
 
@@ -71,10 +89,9 @@ public class OrderProducer {
    
     @Scheduled(fixedRate = 1000) 
     public void sendOrdersEverySecond() {
-    	
-    	if(on && processos < 20) {
-        int numberOfOrdersPerSecond = 1000; 
-        sendOrders(numberOfOrdersPerSecond);
+    
+    	if(on && processos < qtdAprocessar) {
+           sendOrders(numeroDeMensagensEnviadasPorProcessos);
     	}
     }
 }
